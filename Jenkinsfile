@@ -1,39 +1,43 @@
-pipeline {
-    agent any
-
-    stages {
-        stage('Code') {
-            steps {
-                git url: 'https://github.com/rksdutt/node-todo-cicd.git', branch: "master"
-            }
-        }
+@Library("Shared") _
+pipeline{
+    
+    agent { label "vinod"}
+    
+    stages{
         
-        stage('Build') {
-            steps {
-                sh "docker build . -t node-app-test-new"
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                echo 'Hello World'
-            }
-        }
-        
-        stage('Push To Repo') {
-            steps {
-                withCredentials([usernamePassword(credentialsId:"docker-cred",passwordVariable:"dockerPass",usernameVariable:"dockerUser")]){
-                    sh "docker login -u ${env.dockerUser} -p ${env.dockerPass}"
-                    sh "docker tag node-app-test-new ${env.dockerUser}/node-app-test-new:latest"
-                    sh "docker push ${dockerUser}/node-app-test-new:latest"
+        stage("Hello"){
+            steps{
+                script{
+                    hello()
                 }
             }
         }
-        
-        stage('Deploy') {
-            steps {
-                sh "docker-compose down && docker-compose up -d"
+        stage("Code"){
+            steps{
+               script{
+                clone("https://github.com/LondheShubham153/django-notes-app.git","main")
+               }
+                
+            }
+        }
+        stage("Build"){
+            steps{
+                script{
+                docker_build("notes-app","latest","trainwithshubham")
+                }
+            }
+        }
+        stage("Push to DockerHub"){
+            steps{
+                script{
+                    docker_push("notes-app","latest","trainwithshubham")
+                }
+            }
+        }
+        stage("Deploy"){
+            steps{
+                echo "This is deploying the code"
+                sh "docker compose down && docker compose up -d"
             }
         }
     }
-}
