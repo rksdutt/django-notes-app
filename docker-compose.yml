@@ -1,6 +1,6 @@
 version : "3.3"
 services :
   web :
-     image: "rakeshdutt/notes-app:latest"
+     image: "rakeshdutt/node-app-test-new:latest"
      ports :
          - "8000:8000"
